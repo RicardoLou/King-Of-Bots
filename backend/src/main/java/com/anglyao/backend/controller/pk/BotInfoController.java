@@ -9,6 +9,6 @@ public class BotInfoController {
 
     @RequestMapping("getBotInfo")
     public String getBotInfo(Integer bot_id){
-        return "getBotInfo";
+        return "sword";
     }
 }
