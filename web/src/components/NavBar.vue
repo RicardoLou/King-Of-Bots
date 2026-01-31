@@ -1,6 +1,9 @@
 <template>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <img src="../assets/images/snake.png" alt="Bootstrap" width="30" height="30">
+    </a>
     <router-link class="navbar-brand" to="/">King Of Bots</router-link>
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
