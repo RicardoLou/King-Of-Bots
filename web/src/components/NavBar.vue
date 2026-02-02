@@ -17,15 +17,27 @@
           <router-link :class="currentPath == '/ranklist' ? 'nav-link active' : 'nav-link'" to="/ranklist">天梯排行</router-link>
         </li>
       </ul>
-        <ul class="navbar-nav me-3 mb-0">
+        <ul class="navbar-nav me-3 mb-0" v-if="$store.state.user.is_login">
         <li class="nav-item dropdown">
-          <router-link :class="currentPath == '/user' ? 'nav-link active dropdown-toggle' : 'nav-link dropdown-toggle'" to="/user" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Ricardo
-          </router-link>
+          <a class = 'nav-link active dropdown-toggle' href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ $store.state.user.username }}
+          </a>
           <ul class="dropdown-menu">
             <li><router-link class="dropdown-item" to="/user">我的Bots</router-link></li>
-            <li><router-link class="dropdown-item" to="/logout">退出</router-link></li>
+            <li><a class="dropdown-item" href="#" @click="logout">退出</a></li>
           </ul>
+        </li>
+        </ul>
+        <ul class="navbar-nav me-3 mb-0" v-else>
+        <li class="nav-item dropdown">
+          <router-link to="/user/accout/login">
+            <button class="btn btn-secondary">登录</button>
+          </router-link>
+        </li>
+        <li class="nav-item dropdown">
+          <router-link to="/user/accout/register">
+            <button class="btn btn-secondary">注册</button>
+          </router-link>
         </li>
         </ul>
     </div>
@@ -36,15 +48,21 @@
 <script>
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
     name: 'NavBar',
     setup() {
+        const store = useStore();
         const route = useRoute();
         const currentPath = computed(() => route.path);
-        
+
+        const logout = () => {
+            store.dispatch('logout');
+        }
         return {
-            currentPath
+            currentPath,
+            logout
         }
     }
 }

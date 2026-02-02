@@ -4,6 +4,8 @@ import RanklistIndexView from '../views/ranklist/RanklistIndexView.vue'
 import RecordIndexView from '../views/record/RecordIndexView.vue'
 import UserIndexView from '../views/user/UserIndexView.vue'
 import NotFound from '../views/error/NotFound.vue'
+import UserLoginView from '@/views/user/accout/UserLoginView.vue'
+import UserRegisterView from '@/views/user/accout/UserRegisterView.vue'
 
 const routes = [
     {
@@ -30,6 +32,16 @@ const routes = [
         path: '/404',
         name: 'not_found_view',
         component: NotFound
+    },
+    {
+        path: '/user/accout/login',
+        name: 'login',
+        component: UserLoginView
+    },
+    {
+        path: '/user/accout/register',
+        name: 'register',
+        component: UserRegisterView
     },
     {
         path: '/',
