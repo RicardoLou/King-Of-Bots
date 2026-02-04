@@ -6,42 +6,64 @@ import UserIndexView from '../views/user/UserIndexView.vue'
 import NotFound from '../views/error/NotFound.vue'
 import UserLoginView from '@/views/user/accout/UserLoginView.vue'
 import UserRegisterView from '@/views/user/accout/UserRegisterView.vue'
+import store from '@/store/index.js'
 
 const routes = [
     {
         path: '/pk',
         name: 'pk_view',
-        component: PkIndexView
+        component: PkIndexView,
+        meta: {
+            requiresAuth: true
+        }
     },
     {
         path: '/ranklist',
         name: 'ranklist_view',
-        component: RanklistIndexView
+        component: RanklistIndexView,
+        meta: {
+            requiresAuth: true
+        }
     },
     {
         path: '/record',
         name: 'record_view',
-        component: RecordIndexView
+        component: RecordIndexView,
+        meta: {
+            requiresAuth: true
+        }
     },
     {
         path: '/user',
         name: 'user_view',
-        component: UserIndexView
+        component: UserIndexView,
+        meta: {
+            requiresAuth: true
+        }
     },
     {
         path: '/404',
         name: 'not_found_view',
-        component: NotFound
+        component: NotFound,
+        meta: {
+            requiresAuth: false
+        }
     },
     {
         path: '/user/accout/login',
-        name: 'login',
-        component: UserLoginView
+        name: 'login_view',
+        component: UserLoginView,
+        meta: {
+            requiresAuth: false
+        }
     },
     {
         path: '/user/accout/register',
-        name: 'register',
-        component: UserRegisterView
+        name: 'register_view',
+        component: UserRegisterView,
+        meta: {
+            requiresAuth: false
+        }
     },
     {
         path: '/',
@@ -59,4 +81,11 @@ const router = createRouter({
   routes
 })
 
+router.beforeEach((to, from, next) => {
+    if (to.meta.requiresAuth && !store.state.user.is_login) {
+        next({ name: 'login_view' })
+    } else {
+        next()
+    }
+})
 export default router

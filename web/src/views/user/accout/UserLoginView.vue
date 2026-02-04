@@ -1,5 +1,5 @@
 <template>
-        <ContentField>
+        <ContentField v-if="show_content">
             <div class="row justify-content-md-center">
                 <div class="col-3">
                     <form @submit.prevent="login">
@@ -25,6 +25,7 @@ import ContentField from '@/components/ContentField.vue'
 import { useStore } from 'vuex';
 import { ref } from 'vue';
 import  router from '@/router/index.js';
+import { useRoute } from 'vue-router';
 
 export default {
     components: {
@@ -32,10 +33,28 @@ export default {
     },
     setup() {
         const store = useStore();
-        let username = ref('');
+        const route = useRoute();
+        let username = ref(route.query.username || '');
         let password = ref('');
         let error_message = ref('');
-        
+        let show_content = ref(false);
+
+        const token = localStorage.getItem("token");
+        if (token) {
+            store.commit("updateToken", token);
+            store.dispatch('getInfo', {
+                success: () => {
+                    router.push('/pk');
+                },
+                error: () => {
+                    show_content.value = true;
+                    error_message.value = "Token 失效 请重新登录";
+                }
+            });
+        } else {
+            show_content.value = true;
+        }
+
         const login = () => {
             store.dispatch('login', {
                 username: username.value,
@@ -60,6 +79,7 @@ export default {
             username,
             password,
             error_message,
+            show_content,
             login
         }
     }

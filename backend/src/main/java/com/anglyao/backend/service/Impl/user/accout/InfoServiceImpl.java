@@ -15,7 +15,6 @@ public class InfoServiceImpl implements InfoService {
     @Override
     public Map<String, String> getInfo() {
         UsernamePasswordAuthenticationToken authenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        System.out.println(SecurityContextHolder.getContext());
         UserDetailImpl loginUser = (UserDetailImpl) authenticationToken.getPrincipal();
         User user = loginUser.getUser();
         Map<String, String> map = new HashMap<>();

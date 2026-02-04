@@ -24,6 +24,7 @@ public class RegisterServiceImpl implements RegisterService {
     @Override
     public Map<String, String> register(String username, String password, String confirmedPassword) {
         Map<String, String> map = new HashMap<>();
+        System.out.println(username);
         username = username.trim();
         password = password.trim();
         confirmedPassword = confirmedPassword.trim();
@@ -44,6 +45,6 @@ public class RegisterServiceImpl implements RegisterService {
         String encoded = passwordEncoder.encode(password);
         userMapper.insert(new User(null, username, encoded, "https://cdn.acwing.com/media/user/profile/photo/10905_lg_f5f0d5c0c7.jpg"));
         map.put("error_message", "success");
-        return null;
+        return map;
     }
 }

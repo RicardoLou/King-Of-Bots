@@ -30,13 +30,13 @@
         </ul>
         <ul class="navbar-nav me-3 mb-0" v-else>
         <li class="nav-item dropdown">
-          <router-link to="/user/accout/login">
-            <button class="btn btn-secondary">登录</button>
+          <router-link to="/user/accout/login" :class="currentPath == '/ranklist' ? 'nav-link active' : 'nav-link'">
+            登录
           </router-link>
         </li>
         <li class="nav-item dropdown">
-          <router-link to="/user/accout/register">
-            <button class="btn btn-secondary">注册</button>
+          <router-link to="/user/accout/register" :class="currentPath == '/user/accout/register' ? 'nav-link active' : 'nav-link'">
+            注册
           </router-link>
         </li>
         </ul>
@@ -49,6 +49,7 @@
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import router from '@/router/index.js';
 
 export default {
     name: 'NavBar',
@@ -59,6 +60,7 @@ export default {
 
         const logout = () => {
             store.dispatch('logout');
+            router.push({ name: 'login_view' });
         }
         return {
             currentPath,

@@ -18,6 +18,7 @@ public class RegisterController {
 
     @PostMapping("/register")
     public Map<String, String> register(@RequestParam Map<String, String> map) {
+        System.out.println(map);
         return registerService.register(map.get("username"), map.get("password"), map.get("confirmedPassword"));
     }
 }
