@@ -37,14 +37,14 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="add-bot-code" class="form-label">代码</label>
-                                        <textarea v-model="code" class="form-control" id="add-bot-code" rows="7" placeholder="请输入Bot代码"></textarea>
+                                        <VAceEditor v-model:value="code" @init="editorInit" lang="c_cpp" theme="textmate" style="height: 300px" />
                                     </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <div class="error-message">{{ error_message }}</div>
-                                    <button type="button" class="btn btn-primary" @click="add_bot">创建</button>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                </div>
+                                    <div class="modal-footer">
+                                        <div class="error-message">{{ error_message }}</div>
+                                        <button type="button" class="btn btn-primary" @click="add_bot">创建</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -88,7 +88,7 @@
                                                         </div>
                                                         <div class="mb-3">
                                                             <label class="form-label">代码</label>
-                                                            <textarea v-model="bot.code" class="form-control" rows="12" readonly></textarea>
+                                                            <VAceEditor v-model:value="bot.code" @init="editorInit" lang="c_cpp" theme="textmate" style="height: 300px" readonly />
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
@@ -121,7 +121,7 @@
                                                     </div>
                                                     <div class="mb-3">
                                                         <label :for="'update-bot-code-' + bot.id" class="form-label">代码</label>
-                                                        <textarea v-model="bot.code" class="form-control" :id="'update-bot-code-' + bot.id" rows="7" placeholder="请输入Bot代码"></textarea>
+                                                        <VAceEditor v-model:value="bot.code" @init="editorInit" lang="c_cpp" theme="textmate" style="height: 300px" />
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -148,9 +148,19 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useStore } from 'vuex'
 import { Modal } from 'bootstrap/dist/js/bootstrap'
+import { VAceEditor } from 'vue3-ace-editor'; 
+import ace from 'ace-builds';
+import 'ace-builds/src-noconflict/mode-c_cpp';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-textmate';
+import 'ace-builds/src-noconflict/ext-language_tools';
 
 export default {
+    components: {
+        VAceEditor
+    },
     setup() {
+        ace.config.set( "basePath", "https://cdn.jsdelivr.net/npm/ace-builds@" + require('ace-builds').version + "/src-noconflict/" );
         const store = useStore();
         let bots = ref([]);
         const botName = ref('');
@@ -250,6 +260,11 @@ export default {
             })
         }
 
+        const editorInit = () => {
+            require('ace-builds/src-noconflict/ext-language_tools');
+            require('ace-builds/src-noconflict/snippets/c_cpp');
+        }
+
         return {
             bots,
             botName,
@@ -259,6 +274,7 @@ export default {
             add_bot,
             update_bot,
             remove_bot,
+            editorInit,
         }
     }
 }
