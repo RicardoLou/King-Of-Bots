@@ -1,6 +1,6 @@
 <template>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
+  <div class="container">
     <a class="navbar-brand" href="/">
       <img src="../assets/images/snake.png" alt="Bootstrap" width="30" height="30">
     </a>
@@ -23,7 +23,7 @@
             {{ $store.state.user.username }}
           </a>
           <ul class="dropdown-menu">
-            <li><router-link class="dropdown-item" to="/user">我的Bots</router-link></li>
+            <li><router-link class="dropdown-item" to="/user/bot/index">个人中心</router-link></li>
             <li><a class="dropdown-item" href="#" @click="logout">退出</a></li>
           </ul>
         </li>

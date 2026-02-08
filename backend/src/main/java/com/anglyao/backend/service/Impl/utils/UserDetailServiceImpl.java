@@ -1,4 +1,4 @@
-package com.anglyao.backend.service.Impl;
+package com.anglyao.backend.service.Impl.utils;
 
 import com.anglyao.backend.mapper.UserMapper;
 import com.anglyao.backend.pojo.User;

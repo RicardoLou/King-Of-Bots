@@ -7,6 +7,7 @@ import NotFound from '../views/error/NotFound.vue'
 import UserLoginView from '@/views/user/accout/UserLoginView.vue'
 import UserRegisterView from '@/views/user/accout/UserRegisterView.vue'
 import store from '@/store/index.js'
+import UserBotIndexView from '@/views/user/bot/UserBotIndexView.vue'
 
 const routes = [
     {
@@ -63,6 +64,14 @@ const routes = [
         component: UserRegisterView,
         meta: {
             requiresAuth: false
+        }
+    },
+    {
+        path: '/user/bot/index',
+        name: 'user_bot_index_view',
+        component: UserBotIndexView,
+        meta: {
+            requiresAuth: true
         }
     },
     {
