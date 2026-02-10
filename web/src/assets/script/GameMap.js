@@ -2,69 +2,22 @@ import { AcGameObject } from './AcGameObjects.js';
 import { Wall } from './Wall.js';
 
 export class GameMap extends AcGameObject {
-    constructor(ctx, parent) {
+    constructor(ctx, parent, store) {
         super();
         
         this.ctx = ctx;
         this.parent = parent;
         this.L = 0;
-
+        this.store = store;
         this.rows = 13;
-        this.cols = 13;
+        this.cols = 14;
         this.walls = [];
 
-        this.inner_walls_count = 17; // 障碍物数量（对称）
-    }
-
-    check_connectivity(g, sx, sy, tx, ty) {
-        if (sx == tx && sy == ty) return true;
-        g[sx][sy] = true;
-        
-        let dx = [-1, 0, 1, 0], dy = [0, 1, 0, -1];
-        for(let i = 0; i < 4; i ++) {
-            let x = sx + dx[i], y = sy + dy[i];
-            if (x < 0 || x >= this.rows || y < 0 || y >= this.cols) continue;
-            if (g[x][y]) continue;
-            if (this.check_connectivity(g, x, y, tx, ty)) return true;
-        }
-        return false;
+        this.inner_walls_count = 10; // 障碍物数量（对称）
     }
 
     create_walls() {
-        const g = [];
-        // 四周的边界墙
-        for(let r = 0; r < this.rows; r ++) {
-            g[r] = [];
-            for(let c = 0; c < this.cols; c ++) {
-                g[r][c] = false;
-            }
-        }
-        for(let r = 0; r < this.rows; r ++) {
-            g[r][0] = g[r][this.cols - 1] = true;
-        }
-        for(let c = 0; c < this.cols; c ++) {
-            g[0][c] = g[this.rows - 1][c] = true;
-        }
-        
-        // 随机加墙
-        for(let i = 0; i < this.inner_walls_count; i++) {
-            for(let j = 0; j < 1000; j ++) {
-                let r = parseInt(Math.random() * this.rows);
-                let c = parseInt(Math.random() * this.cols);
-                if (g[r][c] || g[c][r]) continue;
-                if ((r === this.rows - 2 && c === 1) || (r === 1 && c === this.cols - 2)) continue;
-                g[r][c] = true;
-                g[c][r] = true;
-                break;
-            }
-        }
-
-        const copy_g = JSON.parse(JSON.stringify(g));
-        // 检查地图是否连通
-        if (!this.check_connectivity(copy_g, this.rows - 2, 1, 1, this.cols - 2)) {
-            return false;
-        }
-
+        const g = this.store.state.pk.gameMap;
         // 渲染墙
         for(let r = 0; r < this.rows; r ++) {
             for(let c = 0; c < this.cols; c ++) {
@@ -73,14 +26,10 @@ export class GameMap extends AcGameObject {
                 }
             }
         }
-
-        return true;
     }
 
     start() {
-        for(let i = 0; i < 1900; i ++) {
-            if(this.create_walls()) break;
-        }
+        this.create_walls();
     }
 
     update_size() { // 用户窗口大小改变时调用
