@@ -1,5 +1,6 @@
 import { AcGameObject } from './AcGameObjects.js';
 import { Wall } from './Wall.js';
+import { Snake } from './Snake.js';
 
 export class GameMap extends AcGameObject {
     constructor(ctx, parent, store) {
@@ -9,11 +10,16 @@ export class GameMap extends AcGameObject {
         this.parent = parent;
         this.L = 0;
         this.store = store;
-        this.rows = 13;
-        this.cols = 14;
+        this.rows = this.store.state.pk.gameMap.length;
+        this.cols = this.store.state.pk.gameMap[0].length;
         this.walls = [];
 
         this.inner_walls_count = 10; // 障碍物数量（对称）
+
+        this.snakes = [
+            new Snake({id: 0, color: "#4876EC", r: this.store.state.pk.a_sx, c: this.store.state.pk.a_sy}, this),
+            new Snake({id: 1, color: "#F94848", r: this.store.state.pk.b_sx, c: this.store.state.pk.b_sy}, this),
+        ];
     }
 
     create_walls() {
@@ -28,8 +34,35 @@ export class GameMap extends AcGameObject {
         }
     }
 
+    add_listening_events() {
+        this.ctx.canvas.focus();
+        
+        const keydown_handler = e => {
+            let d = -1;
+            if (e.key === 'w') d = 0;
+            else if (e.key === 'd') d = 1;
+            else if (e.key === 's') d = 2;
+            else if (e.key === 'a') d = 3;
+            
+            if (d >= 0) {
+                this.store.state.pk.socket.send(JSON.stringify({
+                    event: "move",
+                    direction: d,
+                }));
+            }
+        }
+        
+        window.addEventListener("keydown", keydown_handler);
+        this.keydown_handler = keydown_handler;
+    }
+
+    on_destroy() {
+        window.removeEventListener("keydown", this.keydown_handler);
+    }
+
     start() {
         this.create_walls();
+        this.add_listening_events();
     }
 
     update_size() { // 用户窗口大小改变时调用
@@ -37,8 +70,47 @@ export class GameMap extends AcGameObject {
         this.ctx.canvas.width = this.L * this.cols;
         this.ctx.canvas.height = this.L * this.rows;
     }
+
+    check_ready() {  // 判断两条蛇是否都准备好下一回合了
+        for (const snake of this.snakes) {
+            if (snake.status !== "idle") return false;
+            if (snake.direction === -1) return false;
+        }
+        return true;
+    }
+
+    next_step() {  // 让两条蛇进入下一回合
+        for (const snake of this.snakes) {
+            snake.next_step();
+        }
+    }
+
+    check_valid(cell) {  // 检测目标位置是否合法：没有撞到两条蛇的身体和障碍物
+        for (const wall of this.walls) {
+            if (wall.r === cell.r && wall.c === cell.c)
+                return false;
+        }
+
+        for (const snake of this.snakes) {
+            let k = snake.cells.length;
+            if (!snake.check_tail_increasing()) {  // 当蛇尾会前进的时候，蛇尾不要判断
+                k -- ;
+            }
+            for (let i = 0; i < k; i ++ ) {
+                if (snake.cells[i].r === cell.r && snake.cells[i].c === cell.c)
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
     update() {
         this.update_size();
+        if (this.check_ready()) {
+            this.next_step();
+        }
+
         this.render();
     }
     render() {

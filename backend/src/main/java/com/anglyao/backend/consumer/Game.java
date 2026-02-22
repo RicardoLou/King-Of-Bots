@@ -1,28 +1,64 @@
 package com.anglyao.backend.consumer;
 
-import lombok.Data;
+import com.alibaba.fastjson2.JSONObject;
+import com.anglyao.backend.pojo.Record;
 
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static com.anglyao.backend.consumer.WebSocketServer.recordMapper;
 
 
-public class Game {
+public class Game extends Thread{
     private final Integer rows;
     private final Integer cols;
     private final Integer inner_walls_count;
     private final int[][] g;
+    private final Player playerA, playerB;
     private final static int[] dx = {-1, 0, 1, 0}, dy = {0, 1, 0, -1};
+    private Integer nextStepAIndex = null;
+    private Integer nextStepBIndex = null;
+    private final ReentrantLock lock = new ReentrantLock();
+    private String status = "playing"; // playing -> finished
+    private String winner = ""; // all -> 平局  A -> A win  B -> B win
 
-    public Game(Integer rows, Integer cols, Integer inner_walls_count) {
+    public Game(Integer rows, Integer cols, Integer inner_walls_count, Integer playerAId, Integer playerBId) {
         this.rows = rows;
         this.cols = cols;
         this.inner_walls_count = inner_walls_count;
         this.g = new int[rows][cols];
+        this.playerA = new Player(playerAId, rows - 2, 1, new ArrayList<>());
+        this.playerB = new Player(playerBId, 1, cols - 2, new ArrayList<>());
     }
 
     int[][] getG() {
         return g;
     }
 
+    Player getPlayerA() {
+        return playerA;
+    }
+    Player getPlayerB() {
+        return playerB;
+    }
+
+    void setNextStepAIndex(Integer nextStepAIndex) {
+        lock.lock();
+        try {
+            this.nextStepAIndex = nextStepAIndex;
+        } finally {
+            lock.unlock();
+        }
+
+    }
+    void setNextStepBIndex(Integer nextStepBIndex) {
+        lock.lock();
+        try {
+            this.nextStepBIndex = nextStepBIndex;
+        } finally {
+            lock.unlock();
+        }
+    }
 
     /**
      * 核心绘图逻辑：包含边界生成、随机对称加墙及连通性检查
@@ -93,6 +129,161 @@ public class Game {
     public void createMap() {
         for (int i = 0; i < 1000; i++) {
             if (draw()) break;
+        }
+    }
+
+    /**
+     * 等待玩家下一步操作
+     * @return
+     */
+    private boolean nextStep() {
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        for(int i = 0; i < 50; i ++) {
+            try {
+                Thread.sleep(100);
+                lock.lock();
+                try {
+                    // 两个操作都读到了, 先写入
+                    if (nextStepAIndex != null && nextStepBIndex != null) {
+                        playerA.getSteps().add(nextStepAIndex);
+                        playerB.getSteps().add(nextStepBIndex);
+                        return true;
+                    }
+                } finally {
+                    lock.unlock();
+                }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 向两个 Client 发送消息
+     */
+    private void sendResult() {
+        JSONObject resp = new JSONObject();
+        resp.put("event", "result");
+        resp.put("winner", winner);
+        recordInfo();
+        sendAllMessage(resp.toJSONString());
+    }
+
+    private boolean check_valid(List<Cell> aCells, List<Cell> bCells) {
+        int n = aCells.size();
+        Cell cell = aCells.get(n - 1);
+        if (g[cell.x][cell.y] == 1) return false;
+
+        for(int i = 0; i < n - 1; i ++) {
+            if (aCells.get(i).x == cell.x && aCells.get(i).y == cell.y)
+                return false;
+        }
+        for(int i = 0; i < n - 1; i ++) {
+            if (bCells.get(i).x == cell.x && bCells.get(i).y == cell.y)
+                return false;
+        }
+        return true;
+    }
+    /**
+     * 判断蛇操作是否合法
+     */
+    private void judge() {
+        List<Cell> aCells = playerA.getCells(), bCells = playerB.getCells();
+        boolean validA = check_valid(aCells, bCells);
+        boolean validB = check_valid(bCells, aCells);
+        if (!validA || !validB) {
+            status = "finished";
+            if (!validA && !validB) {
+                winner = "all";
+            } else if (!validA) {
+                winner = "B";
+            } else {
+                winner = "A";
+            }
+
+        }
+    }
+    private void sendAllMessage(String message) {
+        WebSocketServer.users.get(playerA.getId()).sendMessage(message);
+        WebSocketServer.users.get(playerB.getId()).sendMessage(message);
+    }
+
+    private String getMapString() {
+        StringBuilder res = new StringBuilder();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                res.append(g[i][j]);
+            }
+        }
+        return res.toString();
+    }
+    private void recordInfo() {
+        Record record = new Record(
+                null,
+                playerA.getId(),
+                playerA.getSx(),
+                playerA.getSy(),
+                playerB.getId(),
+                playerB.getSx(),
+                playerB.getSy(),
+                playerA.getStepsString(),
+                playerB.getStepsString(),
+                getMapString(),
+                winner,
+                new Date()
+        );
+        recordMapper.insert(record);
+    }
+
+    /**
+     * 传递蛇移动信息
+     */
+    private void sendMove() {
+        lock.lock();
+        try {
+            JSONObject resp = new JSONObject();
+            resp.put("event", "move");
+            resp.put("a_direction", nextStepAIndex);
+            resp.put("b_direction", nextStepBIndex);
+            sendAllMessage(resp.toJSONString());
+            nextStepAIndex = nextStepBIndex = null;
+        } finally {
+            lock.unlock();
+        }
+    }
+    @Override
+    public void run() {
+        for(int i = 0; i < 100000; i ++) {
+            if (nextStep()) {
+                judge();
+                if (status.equals("playing")) {
+                   sendMove();
+                } else {
+                    sendResult();
+                    break;
+                }
+            } else {
+                status = "finished";
+                lock.lock();
+                try {
+                    if (nextStepAIndex == null && nextStepBIndex == null) {
+                        winner = "all";
+                    } else if (nextStepAIndex == null) {
+                        winner = "B";
+                    } else {
+                        winner = "A";
+                    }
+                } finally {
+                    lock.unlock();
+                }
+                sendResult();
+                break;
+            }
         }
     }
 }
