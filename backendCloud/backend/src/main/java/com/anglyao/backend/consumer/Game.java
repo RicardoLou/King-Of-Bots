@@ -93,7 +93,7 @@ public class Game extends Thread{
                 if ((r == rows - 2 && c == 1) || (r == 1 && c == cols - 2)) continue;
 
                 // 对称生成墙
-                g[r][c] = g[rows - 1 - r][cols - 1 - c] = 1;
+                g[r][c] = 1;
                 break;
             }
         }
@@ -207,8 +207,10 @@ public class Game extends Thread{
         }
     }
     private void sendAllMessage(String message) {
-        WebSocketServer.users.get(playerA.getId()).sendMessage(message);
-        WebSocketServer.users.get(playerB.getId()).sendMessage(message);
+        if (WebSocketServer.users.get(playerA.getId()) != null)
+            WebSocketServer.users.get(playerA.getId()).sendMessage(message);
+        if (WebSocketServer.users.get(playerB.getId()) != null)
+            WebSocketServer.users.get(playerB.getId()).sendMessage(message);
     }
 
     private String getMapString() {
