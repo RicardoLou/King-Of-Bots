@@ -30,7 +30,7 @@ public class BotServiceImpl implements BotService {
         String code = data.get("code");
 
         Date now = new Date();
-        Bot bot = new Bot(null, user.getId(), botName, description, code, 1500, now, now);
+        Bot bot = new Bot(null, user.getId(), botName, description, code, now, now);
         Map<String, String> map = new HashMap<>();
 
         if (description == null || description.isEmpty()) {

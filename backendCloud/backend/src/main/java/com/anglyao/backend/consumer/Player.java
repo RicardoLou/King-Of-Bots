@@ -14,6 +14,8 @@ public class Player {
     private Integer id;
     private Integer sx;
     private Integer sy;
+    private Integer botId; // 玩家使用的机器人id （-1表示亲自出马）
+    private String botCode;
     private List<Integer> steps;
 
     private boolean check_tail_increasing(int step) {  // 检验当前回合，蛇的长度是否增加

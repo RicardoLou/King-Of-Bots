@@ -52,11 +52,6 @@ public class Bot implements Serializable {
     private String code;
 
     /**
-    * Bot的排位分数
-    */
-    private Integer rating;
-
-    /**
     * Bot的创建时间
     */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

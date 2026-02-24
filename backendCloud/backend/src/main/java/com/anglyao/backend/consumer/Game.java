@@ -1,7 +1,10 @@
 package com.anglyao.backend.consumer;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.anglyao.backend.pojo.Bot;
 import com.anglyao.backend.pojo.Record;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -13,6 +16,8 @@ public class Game extends Thread{
     private final Integer rows;
     private final Integer cols;
     private final Integer inner_walls_count;
+    private final Bot botA;
+    private final Bot botB;
     private final int[][] g;
     private final Player playerA, playerB;
     private final static int[] dx = {-1, 0, 1, 0}, dy = {0, 1, 0, -1};
@@ -21,28 +26,43 @@ public class Game extends Thread{
     private final ReentrantLock lock = new ReentrantLock();
     private String status = "playing"; // playing -> finished
     private String winner = ""; // all -> 平局  A -> A win  B -> B win
+    private static final String addBotURL = "http://127.0.0.1:3002/bot/add/";
 
-    public Game(Integer rows, Integer cols, Integer inner_walls_count, Integer playerAId, Integer playerBId) {
+    public Game(Integer rows, Integer cols, Integer inner_walls_count, Integer playerAId, Bot botA, Integer playerBId, Bot botB) {
         this.rows = rows;
         this.cols = cols;
         this.inner_walls_count = inner_walls_count;
         this.g = new int[rows][cols];
-        this.playerA = new Player(playerAId, rows - 2, 1, new ArrayList<>());
-        this.playerB = new Player(playerBId, 1, cols - 2, new ArrayList<>());
+        this.botA = botA;
+        this.botB = botB;
+        Integer botIdA = -1, botIdB = -1;
+        String botCodeA = "", botCodeB = "";
+        if (botA != null) {
+            botIdA = botA.getId();
+            botCodeA = botA.getCode();
+        }
+        if (botB != null) {
+            botIdB = botB.getId();
+            botCodeB = botB.getCode();
+        }
+
+
+        this.playerA = new Player(playerAId, rows - 2, 1, botIdA, botCodeA, new ArrayList<>());
+        this.playerB = new Player(playerBId, 1, cols - 2, botIdB, botCodeB, new ArrayList<>());
     }
 
     int[][] getG() {
         return g;
     }
 
-    Player getPlayerA() {
+    public Player getPlayerA() {
         return playerA;
     }
-    Player getPlayerB() {
+    public Player getPlayerB() {
         return playerB;
     }
 
-    void setNextStepAIndex(Integer nextStepAIndex) {
+    public void setNextStepAIndex(Integer nextStepAIndex) {
         lock.lock();
         try {
             this.nextStepAIndex = nextStepAIndex;
@@ -51,7 +71,7 @@ public class Game extends Thread{
         }
 
     }
-    void setNextStepBIndex(Integer nextStepBIndex) {
+    public void setNextStepBIndex(Integer nextStepBIndex) {
         lock.lock();
         try {
             this.nextStepBIndex = nextStepBIndex;
@@ -133,6 +153,40 @@ public class Game extends Thread{
     }
 
     /**
+     * 将当前局面信息转换为字符串
+     * @param player
+     * @return
+     */
+    private String getRecordInfo(Player player) {
+        // 信息用 # 分割
+        Player me, you;
+        if (player.getId().equals(playerA.getId())) {
+            me = playerA;
+            you = playerB;
+        } else {
+            me = playerB;
+            you = playerA;
+        }
+        return getMapString()
+                + "#" + me.getSx()
+                + "#" + me.getSy()
+                + "#(" + me.getStepsString()
+                + ")#" + you.getSx()
+                + "#" + you.getSy()
+                + "#(" + you.getStepsString() + ")";
+    }
+    public void sendBotCode(Player player) {
+        if (player.getBotId().equals(-1))
+            // 人操作 无需执行代码
+            return;
+        MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
+        data.add("user_id", player.getId().toString());
+        data.add("bot_code", player.getBotCode());
+        data.add("input", getRecordInfo(player));
+        WebSocketServer.restTemplate.postForObject(addBotURL, data, String.class);
+
+    }
+    /**
      * 等待玩家下一步操作
      */
     private boolean nextStep() {
@@ -141,6 +195,10 @@ public class Game extends Thread{
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
+        sendBotCode(playerA);
+        sendBotCode(playerB);
+
         for(int i = 0; i < 50; i ++) {
             try {
                 Thread.sleep(100);

@@ -21,7 +21,9 @@ public class StartGameController {
     public String startGame(@RequestParam MultiValueMap<String, String>  data) {
         return startGameService.startGame(
                 Integer.parseInt(Objects.requireNonNull(data.getFirst("a_id"))),
-                Integer.parseInt(Objects.requireNonNull(data.getFirst("b_id")))
+                Integer.parseInt(Objects.requireNonNull(data.getFirst("a_bot_id"))),
+                Integer.parseInt(Objects.requireNonNull(data.getFirst("b_id"))),
+                Integer.parseInt(Objects.requireNonNull(data.getFirst("b_bot_id")))
         );
     }
 }

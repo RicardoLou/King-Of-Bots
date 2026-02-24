@@ -17,6 +17,7 @@
     <modules>
         <module>MatchingSystem</module>
         <module>backend</module>
+        <module>BotRunningSystem</module>
     </modules>
 
     <packaging>pom</packaging>

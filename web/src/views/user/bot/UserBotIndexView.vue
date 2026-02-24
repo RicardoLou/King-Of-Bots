@@ -18,7 +18,6 @@
                             创建Bot
                         </button>
 
-                        <!-- Modal -->
                         <div class="modal fade" id="add-bot-btn" tabindex="-1">
                             <div class="modal-dialog modal-xl">
                                 <div class="modal-content">
