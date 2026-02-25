@@ -3,6 +3,7 @@ package com.anglyao.backend.consumer;
 import com.alibaba.fastjson2.JSONObject;
 import com.anglyao.backend.pojo.Bot;
 import com.anglyao.backend.pojo.Record;
+import com.anglyao.backend.pojo.User;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -10,6 +11,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.anglyao.backend.consumer.WebSocketServer.recordMapper;
+import static com.anglyao.backend.consumer.WebSocketServer.userMapper;
 
 
 public class Game extends Thread{
@@ -280,7 +282,23 @@ public class Game extends Thread{
         }
         return res.toString();
     }
+    private void updateRating(Player player, Integer rating) {
+        User user = userMapper.selectById(player.getId());
+        user.setRating(rating);
+        userMapper.updateById(user);
+    }
     private void recordInfo() {
+        Integer ratingA = userMapper.selectById(playerA.getId()).getRating();
+        Integer ratingB = userMapper.selectById(playerB.getId()).getRating();
+        if ("A".equals(winner)) {
+            ratingB -= 2;
+            ratingA += 5;
+        } else if ("B".equals(winner)) {
+            ratingA -= 2;
+            ratingB += 5;
+        }
+        updateRating(playerA, ratingA);
+        updateRating(playerB, ratingB);
         Record record = new Record(
                 null,
                 playerA.getId(),

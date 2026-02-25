@@ -29,7 +29,7 @@ export default {
           state.status = status;
         },
         updateGame(state, game) {
-          state.gameMap = game.gameMap;
+          state.gameMap = game.gameMap || game.gamemap;
           state.a_id = game.a_id;
           state.a_sx = game.a_sx;
           state.a_sy = game.a_sy;

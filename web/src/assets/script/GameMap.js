@@ -35,25 +35,48 @@ export class GameMap extends AcGameObject {
     }
 
     add_listening_events() {
-        this.ctx.canvas.focus();
-        
-        const keydown_handler = e => {
-            let d = -1;
-            if (e.key === 'w') d = 0;
-            else if (e.key === 'd') d = 1;
-            else if (e.key === 's') d = 2;
-            else if (e.key === 'a') d = 3;
+        if (this.store.state.record.isRecord) {
+            let k = 0;
+            const a_steps = this.store.state.record.a_steps;
+            const b_steps = this.store.state.record.b_steps;
+            const winner = this.store.state.record.record_winner;
+            const [snake0, snake1] = this.snakes;
+            // 控制一下间隔
+            const interval_id = setInterval(() => {
+                // 最后一步是撞墙
+                if (k >= a_steps.length - 1) {
+                    if (winner === "all" || winner === "A") {
+                        snake1.status = "die";
+                    } else if (winner === "all" || winner === "B"){
+                        snake0.status = "die";
+                    }
+                    clearInterval(interval_id);
+                } else {
+                    snake0.set_direction(parseInt(a_steps[k]));
+                    snake1.set_direction(parseInt(b_steps[k]));
+                }
+                k ++;
+            }, 300);
+        } else {
+            this.ctx.canvas.focus();
             
-            if (d >= 0) {
-                this.store.state.pk.socket.send(JSON.stringify({
-                    event: "move",
-                    direction: d,
-                }));
+            const keydown_handler = e => {
+                let d = -1;
+                if (e.key === 'w') d = 0;
+                else if (e.key === 'd') d = 1;
+                else if (e.key === 's') d = 2;
+                else if (e.key === 'a') d = 3;
+                
+                if (d >= 0) {
+                    this.store.state.pk.socket.send(JSON.stringify({
+                        event: "move",
+                        direction: d,
+                    }));
+                }
             }
+            window.addEventListener("keydown", keydown_handler);
+            this.keydown_handler = keydown_handler;
         }
-        
-        window.addEventListener("keydown", keydown_handler);
-        this.keydown_handler = keydown_handler;
     }
 
     on_destroy() {
