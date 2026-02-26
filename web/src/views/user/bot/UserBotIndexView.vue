@@ -169,7 +169,7 @@ export default {
 
         const refresh_bots = () => {
             axios({
-                url: "http://127.0.0.1:3000/user/bot/botList",
+                url: "http://47.97.71.119/api/user/bot/botList",
                 method: "get",
                 headers: {
                     Authorization: "Bearer " + store.state.user.token,
@@ -195,7 +195,7 @@ export default {
         const add_bot = () => {
             error_message.value = "";
             axios({
-                url: "http://127.0.0.1:3000/user/bot/add",
+                url: "http://47.97.71.119/api/user/bot/add",
                 method: "post",
                 data: {
                     botName: botName.value,
@@ -221,7 +221,7 @@ export default {
         const update_bot = (bot) => {
             bot.error_message = "";
             axios({
-                url: "http://127.0.0.1:3000/user/bot/update",
+                url: "http://47.97.71.119/api/user/bot/update",
                 method: "post",
                 data: {
                     bot_id: bot.id,
@@ -244,7 +244,7 @@ export default {
 
         const remove_bot = (bot) => {
             axios({
-                url: "http://127.0.0.1:3000/user/bot/remove",
+                url: "http://47.97.71.119/api/user/bot/remove",
                 method: "post",
                 data: {
                     bot_id: bot.id,

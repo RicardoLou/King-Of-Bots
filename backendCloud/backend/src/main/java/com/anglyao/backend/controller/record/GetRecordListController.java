@@ -11,7 +11,7 @@ import javax.annotation.Resource;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/record")
+@RequestMapping("/api/record")
 public class GetRecordListController {
     @Resource
     private GetRecordListService getRecordListService;

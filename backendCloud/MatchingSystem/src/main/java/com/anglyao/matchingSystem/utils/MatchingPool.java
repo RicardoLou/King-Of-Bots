@@ -79,7 +79,6 @@ public class MatchingPool extends Thread{
      * 尝试匹配用户
      */
     public void matchPlayers() {
-        System.out.println("matching" + players);
         // 优先按 Rating 排序，分值接近的排在一起
         players.sort(Comparator.comparingInt(Player::getRating));
 

@@ -96,7 +96,7 @@ export default {
         const refresh_records = (page) => {
             if (page) current_page = page;
             axios({
-                url: "http://127.0.0.1:3000/record/list/",
+                url: "http://47.97.71.119/api/record/list/",
                 method: "get",
                 params: {
                     pageID: current_page,

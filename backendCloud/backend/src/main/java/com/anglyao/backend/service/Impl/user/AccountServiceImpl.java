@@ -84,7 +84,7 @@ public class AccountServiceImpl implements AccountService {
                 null,
                 username,
                 encoded,
-                "https://cdn.acwing.com/media/user/profile/photo/10905_lg_f5f0d5c0c7.jpg",
+                "https://big-event-ricardo.oss-cn-hangzhou.aliyuncs.com/001.jpg",
                 1500));
         map.put("error_message", "success");
         return map;

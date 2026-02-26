@@ -4,7 +4,6 @@ package com.anglyao.backend.utils;
 import com.anglyao.backend.mapper.UserMapper;
 import com.anglyao.backend.pojo.User;
 import com.anglyao.backend.service.Impl.utils.UserDetailImpl;
-import com.sun.istack.internal.NotNull;
 import io.jsonwebtoken.Claims;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     private UserMapper userMapper;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = request.getHeader("Authorization");
 
         if (!StringUtils.hasText(token) || !token.startsWith("Bearer ")) {

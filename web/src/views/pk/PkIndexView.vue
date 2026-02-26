@@ -19,7 +19,7 @@ export default {
     },
     setup() {
         const store = useStore();
-        const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
+        const socketUrl = `ws://47.97.71.119/websocket/${store.state.user.token}/`;
 
         store.commit("updateWinner", "none");
         store.commit("updateIsRecord", false);

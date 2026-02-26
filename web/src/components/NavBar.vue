@@ -16,17 +16,6 @@
         <li class="nav-item">
           <router-link :class="currentPath == '/ranklist' ? 'nav-link active' : 'nav-link'" to="/ranklist">天梯排行</router-link>
         </li>
-        <li class="nav-item">
-          <span style="margin-left: 15px;">
-            <button type="button" class="btn btn-secondary"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    data-bs-custom-class="my-custom-tooltip"
-                    title="WASD控制移动, 以最后一次操作为准, 每次移动需双方均给出操作">
-              How to play?
-            </button>
-          </span>
-        </li>
       </ul>
         <ul class="navbar-nav me-3 mb-0" v-if="$store.state.user.is_login">
         <li class="nav-item dropdown">
@@ -58,10 +47,9 @@
 
 <script>
 import { useRoute } from 'vue-router';
-import { computed, onMounted, onUnmounted } from 'vue'; // 1. 引入生命周期钩子
+import { computed } from 'vue';
 import { useStore } from 'vuex';
 import router from '@/router/index.js';
-import { Tooltip } from 'bootstrap'; // 2. 引入 Bootstrap 的 Tooltip 插件
 
 export default {
     name: 'NavBar',
@@ -69,22 +57,6 @@ export default {
         const store = useStore();
         const route = useRoute();
         const currentPath = computed(() => route.path);
-
-        // 3. 在组件挂载后初始化 Tooltip
-        onMounted(() => {
-            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new Tooltip(tooltipTriggerEl))
-            
-            // 将实例存起来，方便销毁（可选）
-            window.myTooltips = tooltipList; 
-        });
-
-        // 4. 在组件卸载前销毁（防止在 SPA 中跳转页面后产生残留）
-        onUnmounted(() => {
-            if (window.myTooltips) {
-                window.myTooltips.forEach(t => t.dispose());
-            }
-        });
 
         const logout = () => {
             store.dispatch('logout');
@@ -100,8 +72,4 @@ export default {
 </script>
 
 <style>
-.my-custom-tooltip {
-  --bs-tooltip-bg: var(--bd-violet-bg);
-  --bs-tooltip-color: var(--bs-white);
-}
 </style>

@@ -12,7 +12,7 @@ public class RanklistController {
     @Resource
     private GetRanklistService getRanklistService;
 
-    @GetMapping("/ranklist/")
+    @GetMapping("/api/ranklist/")
     public JSONObject getRanklist(@RequestParam Map<String, String> data) {
         Integer pageID = Integer.parseInt(data.get("pageID"));
         return getRanklistService.getList(pageID);

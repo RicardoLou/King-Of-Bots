@@ -81,7 +81,7 @@ export default {
         const refresh_users = (page) => {
             if (page) current_page = page;
             axios({
-                url: "http://127.0.0.1:3000/ranklist/",
+                url: "http://47.97.71.119/api/ranklist/",
                 method: "get",
                 params: {
                     pageID: current_page,

@@ -1,8 +1,21 @@
 package com.anglyao.botRunningSystem.utils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
-public class Bot implements com.anglyao.botRunningSystem.utils.BotInterface {
+public class Bot implements java.util.function.Supplier<Integer> {
+    @Override
+    public Integer get() {
+        File file = new File("input.txt");
+        try {
+            Scanner sc = new Scanner(file);
+            return nextMove(sc.next());
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static class Cell {
         public int x, y;
         public Cell(int x, int y) { this.x = x; this.y = y; }
@@ -67,7 +80,6 @@ public class Bot implements com.anglyao.botRunningSystem.utils.BotInterface {
         }
     }
 
-    @Override
     public Integer nextMove(String input) {
         String[] strs = input.split("#");
         int[][] g = new int[rows][cols];

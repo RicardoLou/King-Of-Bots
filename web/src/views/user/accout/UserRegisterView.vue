@@ -42,7 +42,7 @@ export default {
         const register = () => {
             console.log(username.value, password.value, confirm_password.value);
             axios({
-                url: 'http://127.0.0.1:3000/user/account/register',
+                url: 'http://47.97.71.119/api/user/account/register',
                 method: 'post', 
                 params: {
                     username: username.value,
